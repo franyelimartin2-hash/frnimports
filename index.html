@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FRNSHEIN - Catálogo Oficial</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background-color: #11111b; color: #cdd6f4; padding: 15px; padding-bottom: 80px; }
+        
+        header { 
+            text-align: center; 
+            padding: 25px 15px; 
+            background: linear-gradient(135deg, #1e1e2e 0%, #252538 100%); 
+            border-radius: 14px; 
+            margin-bottom: 25px; 
+            border: 1px solid #313244;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .logo-tienda { max-width: 100px; height: 100px; object-fit: cover; margin-bottom: 12px; border-radius: 50%; border: 2px solid #89b4fa; background: #11111b; padding: 3px; }
+        header h1 { color: #89b4fa; font-size: 32px; letter-spacing: 3px; font-weight: 800; text-transform: uppercase; }
+        header .ubicacion { color: #a6e3a1; font-weight: 600; margin-top: 6px; font-size: 15px; letter-spacing: 1px; }
+        header .eslogan { color: #94e2d5; font-size: 13px; margin-top: 4px; font-style: italic; }
+
+        /* SECCIÓN DE FILTROS Y BÚSQUEDA PARA EL CLIENTE */
+        .contenedor-filtros-cliente { max-width: 1300px; margin: 0 auto 25px auto; display: flex; flex-direction: column; gap: 15px; }
+        .barra-busqueda-cliente { width: 100%; background: #1e1e2e; border: 1px solid #313244; border-radius: 10px; padding: 12px 15px; color: white; font-size: 15px; outline: none; }
+        .barra-busqueda-cliente:focus { border-color: #89b4fa; }
+        .grupo-botones-categorias { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .btn-filtro-cat { background: #1e1e2e; border: 1px solid #313244; color: #cdd6f4; padding: 10px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-filtro-cat:hover { border-color: #89b4fa; color: #89b4fa; }
+        .btn-filtro-cat.activo { background: #89b4fa; color: #11111b; border-color: #89b4fa; }
+
+        .interfaz-principal { display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px; max-width: 1300px; margin: 0 auto; }
+        
+        .seccion-catalogo { flex: 3; min-width: 60%; height: auto; max-height: none; overflow-y: visible; padding-right: 8px; }
+        
+        /* CORRECCIÓN DE COLUMNAS A 3 POR FILA */
+        .grid-productos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+        
+        .producto-card { background: #1e1e2e; border-radius: 14px; padding: 15px; text-align: center; border: 1px solid #313244; transition: border-color 0.2s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .producto-card:hover { border-color: #89b4fa; }
+        .producto-card.completamente-agotado { opacity: 0.75; border-color: #f38ba8; }
+        
+        .codigo-badge-cliente { position: absolute; top: 8px; left: 8px; background: rgba(17, 17, 27, 0.8); color: #b4befe; font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: bold; border: 1px solid #313244; z-index: 10; }
+        .categoria-badge-cliente { position: absolute; top: 8px; right: 8px; background: rgba(137, 180, 250, 0.15); color: #89b4fa; font-size: 10px; padding: 3px 8px; border-radius: 6px; font-weight: bold; border: 1px solid rgba(137, 180, 250, 0.3); z-index: 10; }
+        
+        /* CORRECCIÓN DE ALTURA DE IMAGEN A 260PX */
+        .contenedor-img-fija { width: 100%; height: 260px; background: #11111b; border-radius: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .producto-img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .producto-card h3 { color: #f5e0dc; font-size: 15px; margin-bottom: 8px; text-transform: uppercase; min-height: 38px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        
+        .contenedor-colores { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 12px; min-height: 32px; }
+        .btn-color-select { background: #313244; border: 1px solid #45475a; color: #cdd6f4; padding: 4px 8px; border-radius: 6px; font-size: 11px; cursor: pointer; font-weight: bold; }
+        .btn-color-select.activo { background: #89b4fa; color: #11111b; border-color: #89b4fa; }
+        .btn-color-select.agotado { background: #181825; color: #585b70; border-color: #181825; text-decoration: line-through; cursor: not-allowed; }
+        
+        .visor-stock-color { font-size: 12px; color: #f9e2af; margin-bottom: 12px; min-height: 16px; font-weight: bold; }
+        .precios-badge { display: flex; justify-content: space-around; background: #11111b; padding: 8px; border-radius: 8px; margin-bottom: 12px; font-size: 12px; }
+        .p-detal { color: #f38ba8; font-weight: bold; }
+        .p-mayor { color: #a6e3a1; font-weight: bold; }
+
+        .controles-compra { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .btn-operacion { background: #313244; border: none; color: #89b4fa; width: 32px; height: 32px; font-size: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+        .btn-operacion:disabled { background: #181825; color: #585b70; cursor: not-allowed; }
+        .contador-visual { font-size: 15px; font-weight: bold; width: 25px; display: inline-block; }
+        
+        .btn-agregar-carrito { background: #89b4fa; color: #11111b; border: none; padding: 10px; width: 100%; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 13px; margin-top: auto; transition: all 0.2s; }
+        .btn-agregar-carrito:disabled { background: #313244; color: #6c7086; cursor: not-allowed; }
+
+        /* CARRITO CLIENTE */
+        .seccion-carrito { flex: 1; min-width: 320px; background: #1e1e2e; border-radius: 14px; padding: 20px; border: 1px solid #313244; height: fit-content; position: sticky; top: 15px; }
+        .seccion-carrito h2 { color: #89b4fa; font-size: 20px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #313244; }
+        .item-en-carrito { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #313244; }
+        .btn-eliminar-item { background: none; border: none; color: #f38ba8; cursor: pointer; font-weight: bold; }
+        .caja-total { margin-top: 20px; padding-top: 15px; border-top: 2px solid #89b4fa; font-size: 18px; font-weight: bold; color: #a6e3a1; display: flex; justify-content: space-between; }
+        .btn-pedido-wa { background: #25D366; color: white; border: none; width: 100%; padding: 14px; font-size: 15px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px; }
+
+        /* PANEL ADMINISTRATIVO */
+        .zona-admin { max-width: 1300px; margin: 40px auto 10px auto; padding-top: 20px; border-top: 1px solid #313244; text-align: center; }
+        .btn-trigger-admin { background: #313244; color: #a6e3a1; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; margin-bottom: 15px; }
+        .panel-formulario-oculto { display: none; max-width: 850px; margin: 20px auto; text-align: left; }
+        
+        .acordeon-boton { background: #252538; color: #f5e0dc; border: 1px solid #313244; width: 100%; padding: 14px 18px; text-align: left; font-size: 14px; font-weight: bold; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s; cursor: pointer; }
+        .acordeon-boton:hover { background: #313244; color: #89b4fa; }
+        .acordeon-contenido { display: none; background: #1e1e2e; border: 1px solid #313244; border-top: none; padding: 20px; border-radius: 0 0 10px 10px; margin-top: -12px; margin-bottom: 15px; }
+        
+        .acordeon-dia-btn { background: #11111b; color: #cdd6f4; border: 1px solid #45475a; width: 100%; padding: 10px 14px; text-align: left; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .acordeon-dia-btn:hover { border-color: #f9e2af; color: #f9e2af; }
+        .acordeon-dia-contenido { display: block; padding: 10px 0; }
+
+        .bloque-factura-reporte { background: #11111b; border: 1px solid #45475a; border-radius: 8px; padding: 12px; margin-bottom: 15px; }
+        .encabezado-factura-reporte { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #313244; padding-bottom: 6px; margin-bottom: 8px; font-size: 13px; }
+
+        .campo-form { margin-bottom: 12px; }
+        .campo-form label { display: block; font-size: 13px; color: #cdd6f4; margin-bottom: 4px; font-weight: 600; }
+        .campo-form input, .campo-form select { width: 100%; background: #11111b; border: 1px solid #313244; color: white; padding: 10px; border-radius: 8px; font-size: 14px; }
+        
+        /* REGLA GENERAL PARA LOS BUSCADORES DE 6 ELEMENTOS Y SCROLL */
+        #selector-buscar-codigo-rebaja, #selector-buscar-codigo-editar, #selector-buscar-codigo-surtir { max-height: 200px; overflow-y: auto; height: auto; }
+        #selector-buscar-codigo-rebaja option, #selector-buscar-codigo-editar option, #selector-buscar-codigo-surtir option { padding: 6px; }
+
+        .bloque-color-input { display: flex; gap: 10px; margin-bottom: 8px; }
+        .btn-subform { background: #45475a; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+
+        /* ESTACIÓN DE FACTURACIÓN INTERNA */
+        .caja-busqueda-rebaja { background: #11111b; border: 1px dashed #45475a; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .fila-controles-rebaja { display: flex; flex-direction: row; flex-wrap: wrap; gap: 12px; margin-top: 12px; align-items: flex-end; }
+        .control-rebaja-item { flex: 1; min-width: 120px; }
+        
+        .btn-agregar-prefactura { background: #a6e3a1; color: #11111b; border: none; padding: 11px; width: 100%; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 13px; text-transform: uppercase; }
+        .btn-agregar-prefactura:disabled { background: #585b70; color: #a6adc8; cursor: not-allowed; }
+        
+        .tabla-prefactura-interna { width: 100%; border-collapse: collapse; font-size: 12px; background: #181825; margin-top: 10px; border-radius: 6px; overflow: hidden; }
+        .tabla-prefactura-interna th { background: #313244; color: #cdd6f4; padding: 6px; text-align: left; }
+        .tabla-prefactura-interna td { padding: 8px; border-bottom: 1px solid #313244; }
+
+        .btn-procesar-factura-total { background: #89b4fa; color: #11111b; border: none; width: 100%; padding: 14px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-procesar-factura-total:disabled { background: #585b70; color: #a6adc8; cursor: not-allowed; box-shadow: none; }
+
+        /* METRICAS Y TABLAS */
+        .tarjeta-metrica { background: #1e1e2e; padding: 20px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-around; text-align: center; border: 1px solid #313244; }
+        .metrica-caja h4 { font-size: 12px; color: #a6adc8; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 1px; }
+        .metrica-caja p { font-size: 22px; font-weight: bold; }
+        
+        .contenedor-selector-borrar-semana { display: flex; gap: 10px; align-items: center; margin-top: 15px; margin-bottom: 15px; }
+        .btn-borrar-semana-completa { background: #f38ba8; border: none; color: #11111b; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        
+        .tabla-ventas { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 5px; }
+        .tabla-ventas th { background: #252538; color: #cdd6f4; padding: 8px; text-align: left; border-bottom: 1px solid #45475a; }
+        .tabla-ventas td { padding: 8px; border-bottom: 1px solid #1e1e2e; color: #cdd6f4; }
+
+        /* COMPROBANTE TICKET BLANCO MODAL */
+        .modal-factura-imprimir { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; justify-content: center; align-items: center; padding: 20px; overflow-y: auto; }
+        
+        .ticket-area-captura { background: white; padding: 35px 25px; border-radius: 4px; width: 100%; max-width: 380px; box-sizing: border-box; }
+        
+        .ticket-cuerpo { color: black; font-family: 'Courier New', Courier, monospace; width: 100%; }
+        .ticket-cuerpo h2 { text-align: center; font-size: 26px; font-weight: bold; letter-spacing: 2px; margin-bottom: 4px; color: #000; }
+        .ticket-cuerpo p { font-size: 13px; margin-bottom: 6px; line-height: 1.4; color: black; }
+        .separador-ticket { border-bottom: 2px dashed black; margin: 18px 0; }
+        .tabla-ticket { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 15px; }
+        .tabla-ticket th { text-align: left; border-bottom: 2px solid black; padding-bottom: 6px; font-weight: bold; color: black; text-transform: uppercase; }
+        .tabla-ticket td { padding: 10px 0; vertical-align: top; color: black; border-bottom: 1px dotted #ccc; }
+        
+        .bloque-botones-ticket { width: 100%; max-width: 380px; display: flex; gap: 10px; margin-top: 15px; }
+        .btn-cerrar-ticket { flex: 1; background: #313244; color: white; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; font-family: sans-serif; text-transform: uppercase; font-size: 12px; }
+        .btn-descargar-ticket { flex: 1; background: #a6e3a1; color: #11111b; border: none; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; font-family: sans-serif; text-transform: uppercase; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+
+        .contenedor-flotante-canales { position: fixed; bottom: 25px; left: 25px; display: flex; flex-direction: column; gap: 12px; z-index: 2000; }
+        .btn-flotante-social { width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; font-size: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .btn-flotante-social.wa-canal { background-color: #25D366; }
+        .btn-flotante-social.tg-canal { background-color: #0088cc; }
+
+        /* ESTILOS DEL BUSCADOR INTELIGENTE EN FACTURACIÓN */
+        .contenedor-buscador-inteligente { display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+        .input-busqueda-interna { flex: 1; background: #11111b; border: 1px solid #313244; color: white; padding: 10px; border-radius: 8px; font-size: 14px; outline: none; }
+        .input-busqueda-interna:focus { border-color: #89b4fa; }
+        .icono-rueda-carga { color: #89b4fa; font-size: 16px; animation: spin 2s linear infinite; display: none; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="contenedor-flotante-canales">
+        <a href="https://t.me/frnshein" target="_blank" class="btn-flotante-social tg-canal"><i class="fab fa-telegram-plane"></i></a>
+        <a href="https://whatsapp.com/channel/0029VbCGdjAEAKWMjF4KVh0k" target="_blank" class="btn-flotante-social wa-canal"><i class="fab fa-whatsapp"></i></a>
+    </div>
+
+    <header>
+        <h1>FRNSHEIN</h1>
+        <div class="ubicacion">📍 Ventas San Joaquín</div>
+        <div class="eslogan">✨ Tu ropa favorita a un clic de distancia ✨</div>
+    </header>
+
+    <div class="contenedor-filtros-cliente">
+        <input type="text" id="buscador-catalogo-cliente" class="barra-busqueda-cliente" placeholder="🔍 ¿Qué estás buscando? Escribe palabras clave (Ej: Nike, Gym, Guantes...)" oninput="renderizarCatalogoCliente()">
+        <div class="grupo-botones-categorias">
+            <button class="btn-filtro-cat activo" id="btn-cat-TODOS" onclick="cambiarFiltroCategoriaCliente('TODOS')">✨ Todo</button>
+            <button class="btn-filtro-cat" id="btn-cat-ROPA" onclick="cambiarFiltroCategoriaCliente('ROPA')">👗 Ropa y Accesorios</button>
+            <button class="btn-filtro-cat" id="btn-cat-DEPORTE" onclick="cambiarFiltroCategoriaCliente('DEPORTE')">⚾ Deportes / Originales</button>
+            <button class="btn-filtro-cat" id="btn-cat-TECNOLOGIA" onclick="cambiarFiltroCategoriaCliente('TECNOLOGIA')">📱 Tecnología</button>
+        </div>
+    </div>
+
+    <div class="interfaz-principal">
+        <div class="seccion-catalogo"><div class="grid-productos" id="contenedor-productos"></div></div>
+
+        <div class="seccion-carrito">
+            <h2>Tu Pedido Activo 🛒</h2>
+            <div id="cuerpo-carrito"><p style="color: #6c7086; text-align: center; padding: 15px;">El carrito está vacío</p></div>
+            <div class="caja-total"><span>Monto Total:</span><span id="valor-total">$0.00</span></div>
+            <button class="btn-pedido-wa" onclick="procesarCompraWhatsApp('584120000000')">📲 Enviar Pedido Directo a WhatsApp</button>
+        </div>
+    </div><div class="modal-factura-imprimir" id="modal-ticket-visual">
+        <div style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div class="ticket-area-captura" id="nodo-captura-ticket">
+                <div class="ticket-cuerpo">
+                    <h2>FRNSHEIN</h2>
+                    <p style="text-align: center; font-style: italic; margin-bottom: 15px; font-size: 12px; letter-spacing: 1px;">¡Gracias por tu confianza!</p>
+                    <p><b>N° Factura:</b> <span id="tkt-id">-</span></p>
+                    <p><b>Cliente:</b> <span id="tkt-cliente">-</span></p>
+                    <p><b>Fecha/Hora:</b> <span id="tkt-fecha">-</span></p>
+                    <div class="separador-ticket"></div>
+                    <table class="tabla-ticket">
+                        <thead>
+                            <tr>
+                                <th style="width: 65%;">Descripción Producto</th>
+                                <th style="text-align: right; width: 35%;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tkt-items-cuerpo"></tbody>
+                    </table>
+                    <div class="separador-ticket"></div>
+                    <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; color: black; padding: 5px 0;">
+                        <span>TOTAL A PAGAR:</span>
+                        <span>$<span id="tkt-total-neto">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+            <div class="bloque-botones-ticket">
+                <button class="btn-cerrar-ticket" onclick="cerrarVentanaTicket()">Volver</button>
+                <button class="btn-descargar-ticket" onclick="descargarTicketComoImagen()"><i class="fa fa-download"></i> Guardar Foto</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="zona-admin">
+        <button class="btn-trigger-admin" onclick="solicitarAccAccessAdmin()">🔒 Acceso Panel Administrativo (Privado)</button>
+
+        <div class="panel-formulario-oculto" id="panel-admin-real">
+            
+            <button class="acordeon-boton" onclick="conmutarAcordeon('seccion-nuevo')"><span>✨ Registrar Nueva Mercancía (Primera Vez)</span> <span>▼</span></button>
+            <div class="acordeon-contenido" id="seccion-nuevo">
+                <div class="campo-form"><label>Nombre del Producto:</label><input type="text" id="adm-nombre" placeholder="Ej: Boxer de Caballero"></div>
+                <div class="campo-form">
+                    <label>Categoría en Web:</label>
+                    <select id="adm-categoria">
+                        <option value="ROPA">👗 Ropa y Accesorios</option>
+                        <option value="DEPORTE">⚾ Deportes / Originales</option>
+                        <option value="TECNOLOGIA">📱 Tecnología</option>
+                    </select>
+                </div>
+                <div class="campo-form"><label>Palabras clave / Etiquetas / Hashtags (Separadas por comas):</label><input type="text" id="adm-tags" placeholder="Ej: nike, gym, beisbol, caballero, original"></div>
+                <div class="campo-form"><label>Subir Imagen:</label><input type="file" id="adm-foto" accept="image/*"></div>
+                <div class="campo-form">
+                    <label>Colores e Inventario Inicial:</label>
+                    <div id="contenedor-inputs-colores">
+                        <div class="bloque-color-input">
+                            <input type="text" placeholder="Color" class="input-color-nombre" style="width: 60%;">
+                            <input type="number" placeholder="Cantidad" class="input-color-stock" style="width: 40%;">
+                        </div>
+                    </div>
+                    <button type="button" class="btn-subform" onclick="agregarCampoColorFormulario()">➕ Añadir otro color</button>
+                </div>
+                <div class="campo-form" style="display: inline-block; width: 48%; margin-right: 4%"><label>Precio Detal ($):</label><input type="number" step="0.01" id="adm-p-detal"></div>
+                <div class="campo-form" style="display: inline-block; width: 48%;"><label>Precio Mayor ($):</label><input type="number" step="0.01" id="adm-p-mayor"></div>
+                <div class="campo-form"><label>Mínimo para Al Mayor:</label><input type="number" id="adm-min-mayor" value="6"></div>
+                <button onclick="guardarProductoNuevo()" style="background:#89b4fa; font-weight:bold; width:100%; padding:12px; border-radius:8px; border:none; cursor:pointer; color:#11111b; text-transform: uppercase;">⚡ Publicar Nuevo en Catálogo</button>
+            </div>
+
+            <button class="acordeon-boton" onclick="conmutarAcordeon('seccion-editar-publicacion')"><span>✏️ Modificar o Eliminar Publicación Existente</span> <span>▼</span></button>
+            <div class="acordeon-contenido" id="seccion-editar-publicacion">
+                <div class="caja-busqueda-rebaja">
+                    <div class="campo-form">
+                        <label>🔍 Buscar Artículo por Nombre o Código:</label>
+                        <div class="contenedor-buscador-inteligente">
+                            <input type="text" id="input-filtro-editar-inteligente" class="input-busqueda-interna" placeholder="Escribe código (FRN-001) o palabras..." oninput="filtrarProductosEdicionInterna()">
+                            <i id="rueda-carga-editar" class="fa fa-spinner icono-rueda-carga"></i>
+                        </div>
+                    </div>
+                    <div class="campo-form">
+                        <label>📦 Artículo Seleccionado:</label>
+                        <select id="selector-buscar-codigo-editar" size="6" onchange="cargarDatosEnFormularioEdicion()"></select>
+                    </div>
+                </div>
+                <div id="bloque-campos-edicion" style="display:none;">
+                    <div class="campo-form"><label>Modificar Nombre:</label><input type="text" id="edit-nombre"></div>
+                    <div class="campo-form">
+                        <label>Modificar Categoría:</label>
+                        <select id="edit-categoria">
+                            <option value="ROPA">👗 Ropa y Accesorios</option>
+                            <option value="DEPORTE">⚾ Deportes / Originales</option>
+                            <option value="TECNOLOGIA">📱 Tecnología</option>
+                        </select>
+                    </div>
+                    <div class="campo-form"><label>Modificar Palabras Clave / Etiquetas:</label><input type="text" id="edit-tags"></div>
+                    <div class="campo-form"><label>Cambiar Foto:</label><input type="file" id="edit-foto" accept="image/*"></div>
+                    <div class="campo-form" style="display: inline-block; width: 31%; margin-right: 3%;"><label>Precio Detal ($):</label><input type="number" step="0.01" id="edit-p-detal"></div>
+                    <div class="campo-form" style="display: inline-block; width: 31%; margin-right: 3%;"><label>Precio Mayor ($):</label><input type="number" step="0.01" id="edit-p-mayor"></div>
+                    <div class="campo-form" style="display: inline-block; width: 32%;"><label>Min. Mayor:</label><input type="number" id="edit-min-mayor"></div>
+                    <div style="display:flex; gap:10px; margin-top: 15px;">
+                        <button onclick="guardarModificacionesProducto()" style="flex:2; background:#a6e3a1; font-weight:bold; padding:12px; border-radius:8px; border:none; cursor:pointer; color:#11111b; text-transform: uppercase;">💾 Actualizar Datos</button>
+                        <button onclick="eliminarProductoDelCatalogoManual()" style="flex:1; background:#f38ba8; font-weight:bold; padding:12px; border-radius:8px; border:none; cursor:pointer; color:#11111b; text-transform: uppercase;">🗑️ Borrar Todo</button>
+                    </div>
+                </div>
+            </div>
+
+            <button class="acordeon-boton" onclick="conmutarAcordeon('seccion-surtir')"><span>📦 Lista de Agregar Mercancía (Surtir Existente)</span> <span>▼</span></button>
+            <div class="acordeon-contenido" id="seccion-surtir">
+                <div class="caja-busqueda-rebaja">
+                    <div class="campo-form">
+                        <label>🔍 Buscar Artículo por Nombre o Código:</label>
+                        <div class="contenedor-buscador-inteligente">
+                            <input type="text" id="input-filtro-surtir-inteligente" class="input-busqueda-interna" placeholder="Escribe código (FRN-001) o palabras..." oninput="filtrarProductosSurtirInterna()">
+                            <i id="rueda-carga-surtir" class="fa fa-spinner icono-rueda-carga"></i>
+                        </div>
+                    </div>
+                    <div class="campo-form">
+                        <label>📦 Artículo Seleccionado:</label>
+                        <select id="selector-buscar-codigo-surtir" size="6" onchange="actualizarColoresDisponiblesReabastecimiento()"></select>
+                    </div>
+                </div>
+                <div class="campo-form" style="display: inline-block; width: 48%; margin-right: 4%;"><label>Color:</label><select id="reabastecer-color-nombre"></select></div>
+                <div class="campo-form" style="display: inline-block; width: 48%;"><label>¿Cuántos llegaron?:</label><input type="number" id="reabastecer-cantidad-nueva" min="1"></div>
+                <button onclick="ejecutarSurtidoInventario()" style="background:#f9e2af; font-weight:bold; width:100%; padding:12px; border-radius:8px; border:none; cursor:pointer; color:#11111b; text-transform: uppercase;">➕ Sumar al Inventario Existente</button>
+            </div>
+            
+            <button class="acordeon-boton" onclick="conmutarAcordeon('seccion-rebajar')"><span>📉 Estación de Facturación Directa (Ventas Combinadas)</span> <span>▼</span></button>
+            <div class="acordeon-contenido" id="seccion-rebajar">
+                <div class="campo-form">
+                    <label>👤 Nombre del Cliente (Vacío para Venta General Nocturna):</label>
+                    <input type="text" id="vta-cliente-nombre" placeholder="Ej: pedroo / Cliente WhatsApp / Dejar vacío..." style="margin-bottom:10px;">
+                </div>
+                <div class="caja-busqueda-rebaja">
+                    <div class="campo-form">
+                        <label>🔍 Buscar Artículo por Nombre o Código:</label>
+                        <div class="contenedor-buscador-inteligente">
+                            <input type="text" id="input-filtro-rebaja-inteligente" class="input-busqueda-interna" placeholder="Escribe código (FRN-001) o palabras clave..." oninput="filtrarProductosFacturacionInterna()">
+                            <i id="rueda-carga-rebaja" class="fa fa-spinner icono-rueda-carga"></i>
+                        </div>
+                    </div>
+                    <div class="campo-form">
+                        <label>📦 Artículo Seleccionado (Límite visual de 6 con scroll):</label>
+                        <select id="selector-buscar-codigo-rebaja" size="6" onchange="cargarDetallesProductoARebajar()" style="height: auto; overflow-y: auto;"></select>
+                    </div>
+                    <div id="bloque-formulario-rebaja-activo" style="display: none;">
+                        <div class="fila-controles-rebaja">
+                            <div class="control-rebaja-item">
+                                <label style="font-size:11px;">Color:</label>
+                                <select id="vta-color-dinamico" onchange="validarRulesDeVentaRebaja()"></select>
+                            </div>
+                            <div class="control-rebaja-item">
+                                <label style="font-size:11px;">Tipo Precio:</label>
+                                <select id="vta-tipo-dinamico" onchange="validarRulesDeVentaRebaja()">
+                                    <option value="DETAL">Detal</option>
+                                    <option value="MAYOR">Al Mayor</option>
+                                </select>
+                            </div>
+                            <div class="control-rebaja-item">
+                                <label style="font-size:11px;">Cantidad:</label>
+                                <input type="number" id="vta-cant-dinamico" value="1" min="1" oninput="validarRulesDeVentaRebaja()">
+                            </div>
+                            <div class="control-rebaja-item">
+                                <button id="btn-añadir-lista-previa" class="btn-agregar-prefactura" onclick="agregarArticuloAListaTemporalFactura()">📋 Descontar</button>
+                            </div>
+                        </div>
+                        <div id="error-alerta-rebaja" style="color:#f38ba8; font-size:12px; margin-top:8px; font-weight:bold; display:none;"></div>
+                    </div>
+                </div>
+                <div id="contenedor-tabla-temporal-factura" style="display:none; background:#1e1e2e; padding:15px; border-radius:10px; border:1px solid #313244;">
+                    <h4 style="color:#89b4fa; font-size:14px; margin-bottom:8px;">📋 Artículos en la Factura Actual:</h4>
+                    <table class="tabla-prefactura-interna">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Producto</th>
+                                <th>Color</th>
+                                <th>Cant.</th>
+                                <th>Precio Tipo</th>
+                                <th>Subtotal</th>
+                                <th>Quitar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpo-tabla-temporal"></tbody>
+                    </table>
+                    <div style="text-align:right; margin-top:12px; font-size:16px; font-weight:bold; color:#a6e3a1;">Total Factura: $<span id="txt-total-temporal-factura">0.00</span></div>
+                    <button id="btn-procesar-factura-final" class="btn-procesar-factura-total" onclick="confirmarYProcesarFacturaCompleta()">⚡ Confirmar y Procesar Factura Completa</button>
+                </div>
+            </div>
+
+            <button class="acordeon-boton" onclick="conmutarAcordeon('seccion-reportes')"><span>📊 Reporte de Ventas Semanales</span> <span>▼</span></button>
+            <div class="acordeon-contenido" id="seccion-reportes">
+                <div class="tarjeta-metrica">
+                    <div class="metrica-caja"><h4>Período</h4><p id="rep-semana-rango" style="color:#89b4fa;">-</p></div>
+                    <div class="metrica-caja"><h4>Prendas Vendidas</h4><p id="rep-total-unidades" style="color:#f9e2af;">0 unidades</p></div>
+                    <div class="metrica-caja"><h4>Ingreso Bruto</h4><p id="rep-total-dinero" style="color:#a6e3a1;">$0.00</p></div>
+                </div>
+                <div class="campo-form" style="margin-bottom: 5px;">
+                    <label>📅 Cambiar de Semana Histórica:</label>
+                    <div class="contenedor-selector-borrar-semana">
+                        <select id="rep-selector-semanas" onchange="cambiarSemanaVisualizadaReporte()" style="flex:1; margin-bottom:0;"></select>
+                        <button class="btn-borrar-semana-completa" onclick="eliminarSemanaHistoricaCompleta()">🗑️ Borrar Semana</button>
+                    </div>
+                </div>
+                <div class="campo-form" style="background:#11111b; padding:12px; border-radius:8px; border:1px solid #45475a; margin-bottom:15px;">
+                    <label style="color:#89b4fa; font-size:12px;"><i class="fa fa-search"></i> BUSCADOR RÁPIDO DE COMPROBANTES O CLIENTES:</label>
+                    <input type="text" id="input-buscador-reportes" oninput="filtrarFacturasPorBusqueda()" placeholder="Escribe el nombre del cliente o código de factura..." style="font-size:13px; padding:8px; border-color:#313244;">
+                </div>
+                <div id="contenedor-acordeones-dias" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CLAVE_SECRETA = "25+Franyeli";
+        
+        let bd_productos = JSON.parse(localStorage.getItem("frnshein_inventario")) || [
+            { id: 1710000000000, codigo: "FRN-001", nombre: "GUANTES DE GYM", categoria: "ROPA", tags: "gym, guantes, deporte", stockColores: { "NEGRO": 20, "BLANCO": 5 }, pDetal: 8.00, pMayor: 6.00, minMayor: 3, foto: "" }
+        ];
+        let bd_ventas = JSON.parse(localStorage.getItem("frnshein_ventas_historico")) || [];
+        let carrito = {};
+        let coloresSeleccionados = {};
+        let facturaTemporalLineas = [];
+        let categoriaFiltroActiva = "TODOS";
+
+        renderizarCatalogoCliente();
+
+        function solicitarAccAccessAdmin() {
+            let pass = prompt("Contraseña de Seguridad:");
+            if (pass === CLAVE_SECRETA) {
+                document.getElementById("panel-admin-real").style.display = "block";
+                armarBuscadorCodigoRebaja(); 
+                armarBuscadorCodigoSurtir();
+                armarBuscadorCodigoEditar();
+                inicializarReportesFinancieros();
+            } else if (pass !== null) { alert("Acceso denegado."); }
+        }
+
+        function conmutarAcordeon(idSeccion) {
+            const contenido = document.getElementById(idSeccion);
+            const estaAbierto = contenido.style.display === "block";
+            document.querySelectorAll('.acordeon-contenido').forEach(el => el.style.display = "none");
+            if (!estaAbierto) { contenido.style.display = "block"; }
+        }
+
+        function generarCodigoUnico() { return "FRN-" + String(bd_productos.length + 1).padStart(3, '0'); }
+
+        function agregarCampoColorFormulario() {
+            const div = document.createElement("div");
+            div.className = "bloque-color-input";
+            div.innerHTML = `<input type="text" placeholder="Color" class="input-color-nombre" style="width:60%;"><input type="number" placeholder="Cantidad" class="input-color-stock" style="width:40%;">`;
+            document.getElementById("contenedor-inputs-colores").appendChild(div);
+        }
+
+        function guardarProductoNuevo() {
+            const nombre = document.getElementById("adm-nombre").value.trim();
+            const categoria = document.getElementById("adm-categoria").value;
+            const tags = document.getElementById("adm-tags").value.trim().toLowerCase();
+            const pDetal = parseFloat(document.getElementById("adm-p-detal").value);
+            const pMayor = parseFloat(document.getElementById("adm-p-mayor").value);
+            const minMayor = parseInt(document.getElementById("adm-min-mayor").value);
+            const inputFoto = document.getElementById("adm-foto");
+            const nombresCampos = document.getElementsByClassName("input-color-nombre");
+            const stocksCampos = document.getElementsByClassName("input-color-stock");
+            let stockColores = {};
+            for (let i = 0; i < nombresCampos.length; i++) {
+                let nom = nombresCampos[i].value.trim().toUpperCase();
+                let stk = parseInt(stocksCampos[i].value);
+                if (nom && !isNaN(stk)) { stockColores[nom] = stk; }
+            }
+            if (!nombre || Object.keys(stockColores).length === 0 || isNaN(pDetal) || isNaN(pMayor)) { alert("Por favor, rellene los datos correctamente."); return; }
+            if (inputFoto.files && inputFoto.files[0]) {
+                const lector = new FileReader();
+                lector.onload = function(e) { ejecutarGuardado(nombre, categoria, tags, stockColores, pDetal, pMayor, minMayor, e.target.result); limpiarFormularioRegistroNuevo(); };
+                lector.readAsDataURL(inputFoto.files[0]);
+            } else { ejecutarGuardado(nombre, categoria, tags, stockColores, pDetal, pMayor, minMayor, ""); limpiarFormularioRegistroNuevo(); }
+        }
+
+        function ejecutarGuardado(nombre, categoria, tags, stockColores, pDetal, pMayor, minMayor, fotoBase64) {
+            bd_productos.push({ id: Date.now(), codigo: generarCodigoUnico(), nombre: nombre.toUpperCase(), categoria: categoria, tags: tags, stockColores: stockColores, pDetal: pDetal, pMayor: pMayor, minMayor: minMayor, foto: fotoBase64 });
+            actualizarTodoEfecto();
+            armarBuscadorCodigoRebaja();
+            armarBuscadorCodigoSurtir();
+            armarBuscadorCodigoEditar();
+            alert("✅ Producto publicado exitosamente.");
+        }
+
+        function limpiarFormularioRegistroNuevo() {
+            document.getElementById("adm-nombre").value = ""; document.getElementById("adm-tags").value = ""; document.getElementById("adm-foto").value = ""; 
+            document.getElementById("adm-p-detal").value = ""; document.getElementById("adm-p-mayor").value = ""; document.getElementById("adm-min-mayor").value = "6"; document.getElementById("adm-categoria").value = "ROPA"; 
+            document.getElementById("contenedor-inputs-colores").innerHTML = `<div class="bloque-color-input"><input type="text" placeholder="Color" class="input-color-nombre" style="width: 60%;"><input type="number" placeholder="Cantidad" class="input-color-stock" style="width: 40%;"></div>`;
+        }
+
+        /* --- LOGICA BUSCADOR CONTROL DE REBAJA --- */
+        function armarBuscadorCodigoRebaja() {
+            const selector = document.getElementById("selector-buscar-codigo-rebaja"); if (!selector) return;
+            selector.innerHTML = "<option value=''>-- Elige un Artículo --</option>";
+            bd_productos.forEach(p => { selector.innerHTML += `<option value="${p.id}">[${p.codigo}] - ${p.nombre}</option>`; });
+            document.getElementById("bloque-formulario-rebaja-activo").style.display = "none";
+            if(document.getElementById("input-filtro-rebaja-inteligente")) document.getElementById("input-filtro-rebaja-inteligente").value = "";
+        }
+
+        function filtrarProductosFacturacionInterna() {
+            const consulta = document.getElementById("input-filtro-rebaja-inteligente").value.trim().toUpperCase();
+            const selector = document.getElementById("selector-buscar-codigo-rebaja");
+            const rueda = document.getElementById("rueda-carga-rebaja"); if (!selector) return;
+            rueda.style.display = (consulta.length > 0) ? "inline-block" : "none";
+            selector.innerHTML = "<option value=''>-- Elige un Artículo --</option>";
+            let encontrados = 0;
+            bd_productos.forEach(p => {
+                if (consulta.length === 0 || p.nombre.toUpperCase().includes(consulta) || p.codigo.toUpperCase().includes(consulta) || (p.tags || "").toUpperCase().includes(consulta)) {
+                    selector.innerHTML += `<option value="${p.id}">[${p.codigo}] - ${p.nombre}</option>`; encontrados++;
+                }
+            });
+            setTimeout(() => { rueda.style.display = "none"; }, 300);
+            if (encontrados === 1 && consulta.length > 2) { selector.selectedIndex = 1; cargarDetallesProductoARebajar(); } 
+            else { document.getElementById("bloque-formulario-rebaja-activo").style.display = "none"; }
+        }
+
+        /* --- NUEVA LOGICA BUSCADOR CONTROL DE EDICION --- */
+        function armarBuscadorCodigoEditar() {
+            const selector = document.getElementById("selector-buscar-codigo-editar"); if (!selector) return;
+            selector.innerHTML = "<option value=''>-- Elige un Artículo --</option>";
+            bd_productos.forEach(p => { selector.innerHTML += `<option value="${p.id}">[${p.codigo}] - ${p.nombre}</option>`; });
+            document.getElementById("bloque-campos-edicion").style.display = "none";
+            if(document.getElementById("input-filtro-editar-inteligente")) document.getElementById("input-filtro-editar-inteligente").value = "";
+        }
+
+        function filtrarProductosEdicionInterna() {
+            const consulta = document.getElementById("input-filtro-editar-inteligente").value.trim().toUpperCase();
+            const selector = document.getElementById("selector-buscar-codigo-editar");
+            const rueda = document.getElementById("rueda-carga-editar"); if (!selector) return;
+            rueda.style.display = (consulta.length > 0) ? "inline-block" : "none";
+            selector.innerHTML = "<option value=''>-- Elige un Artículo --</option>";
+            let encontrados = 0;
+            bd_productos.forEach(p => {
+                if (consulta.length === 0 || p.nombre.toUpperCase().includes(consulta) || p.codigo.toUpperCase().includes(consulta) || (p.tags || "").toUpperCase().includes(consulta)) {
+                    selector.innerHTML += `<option value="${p.id}">[${p.codigo}] - ${p.nombre}</option>`; encontrados++;
+                }
+            });
+            setTimeout(() => { rueda.style.display = "none"; }, 300);
+            if (encontrados === 1 && consulta.length > 2) { selector.selectedIndex = 1; cargarDatosEnFormularioEdicion(); } 
+            else { document.getElementById("bloque-campos-edicion").style.display = "none"; }
+        }
+
+        /* --- NUEVA LOGICA BUSCADOR CONTROL DE SURTIDO --- */
+        function armarBuscadorCodigoSurtir() {
+            const selector = document.getElementById("selector-buscar-codigo-surtir"); if (!selector) return;
+            selector.innerHTML = "<option value=''>-- Elige un Artículo --</option>";
+            bd_productos.forEach(p => { selector.innerHTML += `<option value="${p.id}">[${p.codigo}] - ${p.nombre}</option>`; });
+            document.getElementById("reabastecer-color-nombre").innerHTML = "";
+            if(document.getElementById("input-filtro-surtir-inteligente")) document.getElementById("input-filtro-surtir-inteligente").value = "";
+        }
+
+        function filtrarProductosSurtirInterna() {
+            const consulta = document.getElementById("input-filtro-surtir-inteligente").value.trim().toUpperCase();
+            const selector = document.getElementById("selector-buscar-codigo-surtir");
+            const rueda = document.getElementById("rueda-carga-surtir"); if (!selector) return;
+            rueda.style.display = (consulta.length > 0) ? "inline-block" : "none";
+            selector.innerHTML = "<option value=''>-- Elige un Artículo --</option>";
+            let encontrados = 0;
+            bd_productos.forEach(p => {
+                if (consulta.length === 0 || p.nombre.toUpperCase().includes(consulta) || p.codigo.toUpperCase().includes(consulta) || (p.tags || "").toUpperCase().includes(consulta)) {
+                    selector.innerHTML += `<option value="${p.id}">[${p.codigo}] - ${p.nombre}</option>`; encontrados++;
+                }
+            });
+            setTimeout(() => { rueda.style.display = "none"; }, 300);
+            if (encontrados === 1 && consulta.length > 2) { selector.selectedIndex = 1; actualizarColoresDisponiblesReabastecimiento(); }
+        }
+
+        function cargarDetallesProductoARebajar() {
+            const idSeleccionado = document.getElementById("selector-buscar-codigo-rebaja").value; const bloque = document.getElementById("bloque-formulario-rebaja-activo"); if (!idSeleccionado) { bloque.style.display = "none"; return; }
+            const prod = bd_productos.find(p => p.id == idSeleccionado); if (!prod) return;
+            const selectorColor = document.getElementById("vta-color-dinamico"); selectorColor.innerHTML = "";
+            Object.keys(prod.stockColores).forEach(c => {
+                let tempUsado = 0; facturaTemporalLineas.forEach(linea => { if(linea.idBase == prod.id && linea.color === c) tempUsado += linea.cantidad; });
+                selectorColor.innerHTML += `<option value="${c}">${c} (Físico: ${prod.stockColores[c] - tempUsado})</option>`;
+            });
+            document.getElementById("vta-cant-dinamico").value = 1; bloque.style.display = "block"; validarRulesDeVentaRebaja();
+        }
+
+        function validarRulesDeVentaRebaja() {
+            const idSeleccionado = document.getElementById("selector-buscar-codigo-rebaja").value; const prod = bd_productos.find(p => p.id == idSeleccionado); if (!prod) return false;
+            const color = document.getElementById("vta-color-dinamico").value; const tipo = document.getElementById("vta-tipo-dinamico").value; const cantidad = parseInt(document.getElementById("vta-cant-dinamico").value) || 0;
+            let tempUsado = 0; facturaTemporalLineas.forEach(linea => { if(linea.idBase == prod.id && linea.color === color) tempUsado += linea.cantidad; });
+            const stockDisponible = (prod.stockColores[color] || 0) - tempUsado; const txtError = document.getElementById("error-alerta-rebaja"); const btnIncluir = document.getElementById("btn-añadir-lista-previa");
+            if (cantidad > stockDisponible) { txtError.innerText = `⚠️ Stock insuficiente (Máx: ${stockDisponible}).`; txtError.style.display = "block"; btnIncluir.disabled = true; return false; }
+            if (cantidad <= 0) { txtError.innerText = "⚠️ Cantidad debe ser mayor a 0."; txtError.style.display = "block"; btnIncluir.disabled = true; return false; }
+            if (tipo === "MAYOR" && cantidad < prod.minMayor) { txtError.innerText = `⛔ Mínimo para Al Mayor: ${prod.minMayor} uds.`; txtError.style.display = "block"; btnIncluir.disabled = true; return false; }
+            txtError.style.display = "none"; btnIncluir.disabled = false; return true;
+        }
+
+        function agregarArticuloAListaTemporalFactura() {
+            if (!validarRulesDeVentaRebaja()) return;
+            const idSeleccionado = document.getElementById("selector-buscar-codigo-rebaja").value; const prod = bd_productos.find(p => p.id == idSeleccionado);
+            const color = document.getElementById("vta-color-dinamico").value; const tipo = document.getElementById("vta-tipo-dinamico").value; const cantidad = parseInt(document.getElementById("vta-cant-dinamico").value);
+            const precioUnidad = (tipo === "MAYOR") ? prod.pMayor : prod.pDetal; const subtotal = precioUnidad * cantidad;
+            facturaTemporalLineas.push({ idLinea: Date.now() + Math.random().toString(36).substr(2, 4), idBase: prod.id, codigo: prod.codigo, nombre: prod.nombre, color: color, cantidad: cantidad, tipo: tipo, precioUnidad: precioUnidad, subtotal: subtotal });
+            document.getElementById("selector-buscar-codigo-rebaja").value = ""; document.getElementById("bloque-formulario-rebaja-activo").style.display = "none"; document.getElementById("input-filtro-rebaja-inteligente").value = "";
+            renderizarTablaTemporalPrefactura();
+        }
+
+        function quitarLineaDePrefactura(idLinea) { facturaTemporalLineas = facturaTemporalLineas.filter(l => l.idLinea !== idLinea); renderizarTablaTemporalPrefactura(); }
+
+        function renderizarTablaTemporalPrefactura() {
+            const contenedor = document.getElementById("contenedor-tabla-temporal-factura"); const cuerpo = document.getElementById("cuerpo-tabla-temporal"); const totalVisor = document.getElementById("txt-total-temporal-factura");
+            if (facturaTemporalLineas.length === 0) { contenedor.style.display = "none"; return; }
+            cuerpo.innerHTML = ""; let totalFactura = 0;
+            facturaTemporalLineas.forEach(l => {
+                totalFactura += l.subtotal;
+                cuerpo.innerHTML += `<tr><td style="color:#b4befe; font-weight:bold;">${l.codigo}</td><td>${l.nombre}</td><td>${l.color}</td><td>${l.grid-productos || l.cantidad}</td><td><span style="color:${l.tipo==='MAYOR'?'#a6e3a1':'#f38ba8'}">${l.tipo}</span></td><td style="color:#a6e3a1; font-weight:bold;">$${l.subtotal.toFixed(2)}</td><td><button class="btn-eliminar-item" onclick="quitarLineaDePrefactura('${l.idLinea}')">✕</button></td></tr>`;
+            });
+            totalVisor.innerText = totalFactura.toFixed(2); contenedor.style.display = "block";
+        }
+
+        function confirmarYProcesarFacturaCompleta() {
+            if (facturaTemporalLineas.length === 0) return;
+            let clienteInput = document.getElementById("vta-cliente-nombre").value.trim().toUpperCase(); const clienteFinal = clienteInput || "VENTA GENERAL NOCTURNA";
+            facturaTemporalLineas.forEach(linea => { const prod = bd_productos.find(p => p.id === linea.idBase); if (prod) { prod.stockColores[linea.color] -= linea.cantidad; } });
+            const idSemana = obtenerIdentificadorSemanaActual(); const rangoTexto = obtenerRangoFechaSemanaActual();
+            let semanaBloque = bd_ventas.find(s => s.idSemana === idSemana);
+            if (!semanaBloque) { semanaBloque = { idSemana: idSemana, rango: rangoTexto, transacciones: [] }; bd_ventas.push(semanaBloque); }
+            const ahora = new Date(); const pad = (n) => String(n).padStart(2, '0'); const diasTexto = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+            const idDiaGrupo = `${diasTexto[ahora.getDay()]} ${pad(ahora.getDate())}/${pad(ahora.getMonth()+1)}`; const horaTexto = `${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`;
+            semanaBloque.transacciones.push({ idFactura: "FAC-" + Date.now().toString().substr(-5), cliente: clienteFinal, idDiaGrupo: idDiaGrupo, fechaTexto: `${pad(ahora.getDate())}/${pad(ahora.getMonth()+1)} ${horaTexto}`, hora: horaTexto, items: [...facturaTemporalLineas] });
+            localStorage.setItem("frnshein_ventas_historico", JSON.stringify(bd_ventas));
+            facturaTemporalLineas = []; document.getElementById("vta-cliente-nombre").value = ""; renderizarTablaTemporalPrefactura();
+            actualizarTodoEfecto(); armarBuscadorCodigoRebaja(); armarBuscadorCodigoSurtir(); armarBuscadorCodigoEditar(); inicializarReportesFinancieros();
+            alert("✅ ¡Factura procesada con éxito!");
+        }
+
+        function inicializarReportesFinancieros() {
+            const idSemanaActual = obtenerIdentificadorSemanaActual(); const rangoActual = obtenerRangoFechaSemanaActual();
+            if (bd_ventas.length === 0) { bd_ventas.push({ idSemana: idSemanaActual, rango: rangoActual, transacciones: [] }); localStorage.setItem("frnshein_ventas_historico", JSON.stringify(bd_ventas)); }
+            bd_ventas.sort((a, b) => b.idSemana.localeCompare(a.idSemana)); const selector = document.getElementById("rep-selector-semanas"); if (!selector) return;
+            selector.innerHTML = ""; bd_ventas.forEach(s => { selector.innerHTML += `<option value="${s.idSemana}">${s.rango}</option>`; });
+            mostrarDatosEnTablaReporte(selector.value || idSemanaActual);
+        }
+
+        function cambiarSemanaVisualizadaReporte() { mostrarDatosEnTablaReporte(document.getElementById("rep-selector-semanas").value); document.getElementById("input-buscador-reportes").value = ""; }
+
+        function mostrarDatosEnTablaReporte(idSemana) {
+            const bloque = bd_ventas.find(s => s.idSemana === idSemana); const campoRango = document.getElementById("rep-semana-rango"); const campoUnidades = document.getElementById("rep-total-unidades"); const campoDinero = document.getElementById("rep-total-dinero"); const contenedorDias = document.getElementById("contenedor-acordeones-dias");
+            if (!bloque) return; campoRango.innerText = bloque.rango; contenedorDias.innerHTML = ""; let udsTotales = 0; let dineroTotal = 0;
+            if (bloque.transacciones.length === 0) { contenedorDias.innerHTML = `<p style="text-align:center; color:#6c7086; font-size:13px; padding:15px;">No hay ventas.</p>`; campoUnidades.innerText = "0 uds"; campoDinero.innerText = "$0.00"; return; }
+            bloque.transacciones.forEach(fac => { fac.items.forEach(item => { udsTotales += item.cantidad; dineroTotal += item.subtotal; }); });
+            let gruposPorDia = {}; bloque.transacciones.forEach(fac => { if (!gruposPorDia[fac.idDiaGrupo]) gruposPorDia[fac.idDiaGrupo] = []; gruposPorDia[fac.idDiaGrupo].push(fac); });
+            Object.keys(gruposPorDia).reverse().forEach((diaNombre) => {
+                const facturasDelDia = gruposPorDia[diaNombre].reverse(); let HTMLDiaContenido = `<div class="acordeon-dia-contenido">`;
+                facturasDelDia.forEach(fac => {
+                    let subtotalFactura = 0; let lineasHTML = "";
+                    fac.items.forEach(item => {
+                        subtotalFactura += item.subtotal;
+                        lineasHTML += `<tr><td style="color:#89b4fa; font-weight:bold;">${item.codigo}</td><td>${item.nombre}</td><td>${item.color}</td><td>${item.cantidad}</td><td>$${item.subtotal.toFixed(2)}</td><td style="text-align:center;"><button class="btn-eliminar-item" onclick="anularArticuloIndividualDeFactura('${idSemana}', '${fac.idFactura}', '${item.idLinea}')">✕</button></td></tr>`;
+                    });
+                    if(fac.items.length > 0) {
+                        HTMLDiaContenido += `<div class="bloque-factura-reporte" data-cliente="${fac.cliente}" data-factura="${fac.idFactura}"><div class="encabezado-factura-reporte"><span>🧾 <b style="color:#f9e2af;">${fac.idFactura}</b> - 👥 Cliente: <b>${fac.cliente}</b></span><span style="color:#94e2d5;">🕒 ${fac.hora || 'S/H'}</span></div><table class="tabla-ventas"><thead><tr><th>Cód</th><th>Producto</th><th>Color</th><th>Cant</th><th>Subtotal</th><th>Quitar</th></tr></thead><tbody>${lineasHTML}</tbody></table><div style="text-align:right; margin-top:10px; font-size:13px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;"><button onclick="lanzarTicketImpresion('${idSemana}', '${fac.idFactura}')" style="background:#ffffff; border:1px solid #ccc; padding:6px 10px; border-radius:6px; color:#000000; font-weight:bold; cursor:pointer; font-size:11px;"><i class="fa fa-file-invoice"></i> Ver Comprobante</button><div style="color:#a6e3a1;">Total Neto: $${subtotalFactura.toFixed(2)} | <span style="color:#f38ba8; cursor:pointer; margin-left:12px;" onclick="anularFacturaCompleta('${idSemana}', '${fac.idFactura}')"><i class="fa fa-trash"></i> Eliminar</span></div></div></div>`;
+                    }
+                });
+                HTMLDiaContenido += `</div>`; contenedorDias.innerHTML += `<div style="margin-top:15px; border-bottom:1px dashed #313244; padding-bottom:5px;"><span style="color:#f5e0dc; font-size:14px; font-weight:bold;">📅 Venta del día: ${diaNombre}</span></div>${HTMLDiaContenido}`;
+            });
+            campoUnidades.innerText = `${udsTotales} uds`; campoDinero.innerText = `$${dineroTotal.toFixed(2)}`;
+        }
+
+        function filtrarFacturasPorBusqueda() {
+            const consulta = document.getElementById("input-buscador-reportes").value.trim().toUpperCase();
+            document.querySelectorAll(".bloque-factura-reporte").forEach(bloque => {
+                const cliente = bloque.getAttribute("data-cliente") || ""; const factura = bloque.getAttribute("data-factura") || "";
+                bloque.style.display = (consulta.length === 0 || cliente.includes(consulta) || factura.includes(consulta)) ? "block" : "none";
+            });
+        }
+
+        function lanzarTicketImpresion(idSemana, idFactura) {
+            const bloque = bd_ventas.find(s => s.idSemana === idSemana); const fac = bloque.transacciones.find(f => f.idFactura === idFactura); if (!fac) return;
+            document.getElementById("tkt-id").innerText = fac.idFactura; document.getElementById("tkt-cliente").innerText = fac.cliente; document.getElementById("tkt-fecha").innerText = fac.fechaTexto || fac.hora;
+            const cuerpoTabla = document.getElementById("tkt-items-cuerpo"); cuerpoTabla.innerHTML = ""; let total = 0;
+            fac.items.forEach(item => {
+                total += item.subtotal; const etiquetaPrecio = item.tipo === "MAYOR" ? "PRECIO AL MAYOR" : "PRECIO DETAL";
+                cuerpoTabla.innerHTML += `<tr><td style="padding:12px 0 6px 0; color:black; line-height:1.4;"><span style="font-weight:bold; font-size:14px;">x${item.cantidad} ${item.nombre}</span><br><span style="color:#444444; font-size:11px;">🎨 Color: ${item.color} | 🏷️ ${etiquetaPrecio}: $${item.precioUnidad.toFixed(2)}</span></td><td style="text-align:right; font-weight:bold; color:black; font-size:14px; vertical-align:middle;">$${item.subtotal.toFixed(2)}</td></tr>`;
+            });
+            document.getElementById("tkt-total-neto").innerText = total.toFixed(2); document.getElementById("modal-ticket-visual").style.display = "flex";
+        }
+
+        function descargarTicketComoImagen() {
+            html2canvas(document.getElementById("nodo-captura-ticket"), { scale: 2, backgroundColor: "#ffffff", logging: false, useCORS: true }).then(canvas => {
+                const enlace = document.createElement("a"); enlace.download = `FRNSHEIN-${document.getElementById("tkt-id").innerText}.png`; enlace.href = canvas.toDataURL("image/png"); enlace.click();
+            });
+        }
+
+        function cerrarVentanaTicket() { document.getElementById("modal-ticket-visual").style.display = "none"; }
+
+        function anularArticuloIndividualDeFactura(idSemana, idFactura, idLinea) {
+            if (!confirm("¿Deseas remover este artículo?")) return;
+            const bloque = bd_ventas.find(s => s.idSemana === idSemana); const fac = bloque.transacciones.find(f => f.idFactura === idFactura);
+            const indexItem = fac.items.findIndex(i => i.idLinea === idLinea); const item = fac.items[indexItem];
+            const prod = bd_productos.find(p => p.codigo === item.codigo || p.nombre === item.nombre);
+            if (prod && prod.stockColores[item.color] !== undefined) { prod.stockColores[item.color] += item.cantidad; }
+            fac.items.splice(indexItem, 1); if (fac.items.length === 0) { bloque.transacciones = bloque.transacciones.filter(f => f.idFactura !== idFactura); }
+            localStorage.setItem("frnshein_ventas_historico", JSON.stringify(bd_ventas));
+            actualizarTodoEfecto(); armarBuscadorCodigoRebaja(); armarBuscadorCodigoSurtir(); armarBuscadorCodigoEditar(); mostrarDatosEnTablaReporte(idSemana);
+        }
+
+        function anularFacturaCompleta(idSemana, idFactura) {
+            if (!confirm("¿Anular toda la factura?")) return;
+            const bloque = bd_ventas.find(s => s.idSemana === idSemana); const fac = bloque.transacciones.find(f => f.idFactura === idFactura);
+            fac.items.forEach(item => {
+                const prod = bd_productos.find(p => p.codigo === item.codigo || p.nombre === item.nombre);
+                if (prod && prod.stockColores[item.color] !== undefined) { prod.stockColores[item.color] += item.cantidad; }
+            });
+            bloque.transacciones = bloque.transacciones.filter(f => f.idFactura !== idFactura);
+            localStorage.setItem("frnshein_ventas_historico", JSON.stringify(bd_ventas));
+            actualizarTodoEfecto(); armarBuscadorCodigoRebaja(); armarBuscadorCodigoSurtir(); armarBuscadorCodigoEditar(); mostrarDatosEnTablaReporte(idSemana);
+        }
+
+        function cargarDatosEnFormularioEdicion() {
+            const idSel = document.getElementById("selector-buscar-codigo-editar").value; if (!idSel) return;
+            const producto = bd_productos.find(p => p.id == idSel);
+            if (producto) {
+                document.getElementById("edit-nombre").value = producto.nombre; document.getElementById("edit-categoria").value = producto.categoria || "ROPA";
+                document.getElementById("edit-tags").value = producto.tags || ""; document.getElementById("edit-p-detal").value = producto.pDetal;
+                document.getElementById("edit-p-mayor").value = producto.pMayor; document.getElementById("edit-min-mayor").value = producto.minMayor;
+                document.getElementById("bloque-campos-edicion").style.display = "block";
+            }
+        }
+
+        function guardarModificacionesProducto() {
+            const idSel = document.getElementById("edit-producto-id") ? document.getElementById("edit-producto-id").value : document.getElementById("selector-buscar-codigo-editar").value;
+            const producto = bd_productos.find(p => p.id == idSel); if (!producto) return;
+            producto.nombre = document.getElementById("edit-nombre").value.trim().toUpperCase(); producto.categoria = document.getElementById("edit-categoria").value;
+            producto.tags = document.getElementById("edit-tags").value.trim().toLowerCase(); producto.pDetal = parseFloat(document.getElementById("edit-p-detal").value);
+            producto.pMayor = parseFloat(document.getElementById("edit-p-mayor").value); producto.minMayor = parseInt(document.getElementById("edit-min-mayor").value);
+            actualizarTodoEfecto(); armarBuscadorCodigoRebaja(); armarBuscadorCodigoSurtir(); armarBuscadorCodigoEditar(); alert("Modificado con éxito.");
+        }
+
+        function eliminarProductoDelCatalogoManual() {
+            const idSel = document.getElementById("selector-buscar-codigo-editar").value; if(!idSel) return;
+            const producto = bd_productos.find(p => p.id == idSel); if(!producto) return;
+            if(confirm(`⚠️ ¿Borrar "${producto.nombre}" del catálogo?`)) {
+                bd_productos = bd_productos.filter(p => p.id != idSel); document.getElementById("bloque-campos-edicion").style.display = "none";
+                actualizarTodoEfecto(); armarBuscadorCodigoRebaja(); armarBuscadorCodigoSurtir(); armarBuscadorCodigoEditar(); alert("🗑️ Eliminado.");
+            }
+        }
+
+        function actualizarColoresDisponiblesReabastecimiento() {
+            const idSeleccionado = document.getElementById("selector-buscar-codigo-surtir").value; const selectColor = document.getElementById("reabastecer-color-nombre"); if (!selectColor || !idSeleccionado) return;
+            selectColor.innerHTML = ""; const producto = bd_productos.find(p => p.id == idSeleccionado);
+            if (producto) { Object.keys(producto.stockColores).forEach(color => { selectColor.innerHTML += `<option value="${color}">${color} (${producto.stockColores[color]} uds)</option>`; }); }
+        }
+
+        function ejecutarSurtidoInventario() {
+            const idProd = document.getElementById("selector-buscar-codigo-surtir").value; let color = document.getElementById("reabastecer-color-nombre").value; const cantidadNueva = parseInt(document.getElementById("reabastecer-cantidad-nueva").value);
+            if(!idProd || !color || isNaN(cantidadNueva) || cantidadNueva <= 0) { alert("Ingresa una cantidad válida."); return; }
+            const producto = bd_productos.find(p => p.id == idProd); producto.stockColores[color] += cantidadNueva;
+            actualizarTodoEfecto(); armarBuscadorCodigoSurtir(); armarBuscadorCodigoRebaja(); armarBuscadorCodigoEditar();
+            document.getElementById("reabastecer-cantidad-nueva").value = ""; alert(`✅ Inventario actualizado (Quedan ${producto.stockColores[color]} uds).`);
+        }
+
+        function cambiarFiltroCategoriaCliente(categoria) {
+            categoriaFiltroActiva = categoria; document.querySelectorAll(".btn-filtro-cat").forEach(b => b.classList.remove("activo"));
+            if(categoria === "TODOS") document.getElementById("btn-cat-TODOS").classList.add("activo");
+            if(categoria === "ROPA") document.getElementById("btn-cat-ROPA").classList.add("activo");
+            if(categoria === "DEPORTE") document.getElementById("btn-cat-DEPORTE").classList.add("activo");
+            if(categoria === "TECNOLOGIA") document.getElementById("btn-cat-TECNOLOGIA").classList.add("activo");
+            renderizarCatalogoCliente();
+        }
+
+        function renderizarCatalogoCliente() {
+            const contenedor = document.getElementById("contenedor-productos"); if (!contenedor) return; contenedor.innerHTML = "";
+            const busqueda = document.getElementById("buscador-catalogo-cliente").value.trim().toLowerCase();
+            bd_productos.forEach(p => {
+                if (categoriaFiltroActiva !== "TODOS" && p.categoria !== categoriaFiltroActiva) return; 
+                if (busqueda.length > 0 && !p.nombre.toLowerCase().includes(busqueda) && !p.codigo.toLowerCase().includes(busqueda) && !(p.tags || "").toLowerCase().includes(busqueda)) return;
+                const img = p.foto || `https://placehold.co/250x170/1e1e2e/cdd6f4?text=${p.nombre}`;
+                let txtCatBadge = p.categoria === "DEPORTE" ? "Deportes" : (p.categoria === "TECNOLOGIA" ? "Tecnología" : "Ropa");
+                let totalStockFisicoGlobal = 0; Object.keys(p.stockColores).forEach(c => { totalStockFisicoGlobal += (p.stockColores[c] || 0); });
+                let HTMLColores = ""; let cardClaseExtra = ""; let visorStockTexto = ""; let deshabilitarControles = false; let textoBotonAgregar = "Agregar al Carrito";
+                if (totalStockFisicoGlobal <= 0) {
+                    cardClaseExtra = "completamente-agotado"; visorStockTexto = `<span style="color:#f38ba8; font-weight:800;">✨ Próximamente llegará ✨</span>`; deshabilitarControles = true; textoBotonAgregar = "❌ Agotado";
+                    Object.keys(p.stockColores).forEach(color => { HTMLColores += `<button class="btn-color-select agotado" disabled>${color}</button>`; });
+                } else {
+                    Object.keys(p.stockColores).forEach(color => {
+                        if ((p.stockColores[color] || 0) <= 0) { HTMLColores += `<button class="btn-color-select agotado" disabled>${color}</button>`; } 
+                        else { const esActivo = coloresSeleccionados[p.id] === color ? "activo" : ""; HTMLColores += `<button class="btn-color-select ${esActivo}" onclick="seleccionarColorCliente(${p.id}, '${color}')">${color}</button>`; }
+                    });
+                    const colorElegido = coloresSeleccionados[p.id];
+                    if (!colorElegido) { visorStockTexto = `<span style="color:#a6adc8;">Selecciona un color</span>`; } 
+                    else { visorStockTexto = `Quedan ${p.stockColores[colorElegido]} unidades en ${colorElegido}`; }
+                }
+                contenedor.innerHTML += `<div class="producto-card ${cardClaseExtra}"><div class="codigo-badge-cliente">${p.codigo}</div><div class="categoria-badge-cliente">${txtCatBadge}</div><div class="contenedor-img-fija"><img src="${img}" class="producto-img"></div><h3>${p.nombre}</h3><div class="contenedor-colores">${HTMLColores}</div><div class="visor-stock-color">${visorStockTexto}</div><div class="precios-badge"><span class="p-detal">D: $${p.pDetal.toFixed(2)}</span><span class="p-mayor">M: $${p.pMayor.toFixed(2)}</span></div><div class="controles-compra"><button class="btn-operacion" onclick="ajustarContadorTarjeta(${p.id}, -1)" ${deshabilitarControles?'disabled':''}>-</button><span class="contador-visual" id="num-tarjeta-${p.id}">1</span><button class="btn-operacion" onclick="ajustarContadorTarjeta(${p.id}, 1)" ${deshabilitarControles?'disabled':''}>+</button></div><button class="btn-agregar-carrito" onclick="inyectarAlCarrito(${p.id})" ${p.categoria === "AGOTADO" ? 'disabled' : ''}>${textoBotonAgregar}</button></div>`;
+            });
+            if(contenedor.innerHTML === "") contenedor.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color:#6c7086; padding:40px;">🔍 Sin resultados.</div>`;
+        }
+
+        function seleccionarColorCliente(prodId, color) { coloresSeleccionados[prodId] = color; renderizarCatalogoCliente(); }
+        function ajustarContadorTarjeta(id, op) { const visor = document.getElementById(`num-tarjeta-${id}`); let val = parseInt(visor.innerText) + op; if (val < 1) val = 1; visor.innerText = val; }
+
+        function inyectarAlCarrito(id) {
+            const producto = bd_productos.find(p => p.id === id); const color = coloresSeleccionados[id]; const cantidad = parseInt(document.getElementById(`num-tarjeta-${id}`).innerText);
+            if (!color) { alert("⚠️ Selecciona un color."); return; }
+            const itemKey = `${id}_${color}`;
+            if (carrito[itemKey]) { carrito[itemKey].cantidad += cantidad; } 
+            else { carrito[itemKey] = { id_base: id, codigo: producto.codigo, nombre: producto.nombre, color: color, pDetal: producto.pDetal, pMayor: producto.pMayor, minMayor: producto.minMayor, cantidad: cantidad }; }
+            delete coloresSeleccionados[id]; actualizarInterfazCarrito(); renderizarCatalogoCliente(); document.getElementById(`num-tarjeta-${id}`).innerText = "1";
+        }
+
+        function quitarDelCarrito(key) { delete carrito[key]; actualizarInterfazCarrito(); }
+
+        function actualizarInterfazCarrito() {
+            const cuerpo = document.getElementById("cuerpo-carrito"); const totalVisor = document.getElementById("valor-total"); if (Object.keys(carrito).length === 0) { cuerpo.innerHTML = "<p style='color:#6c7086; text-align:center; padding:15px;'>Vacío</p>"; totalVisor.innerText = "$0.00"; return; }
+            cuerpo.innerHTML = ""; let total = 0;
+            Object.keys(carrito).forEach(k => {
+                let i = carrito[k]; let precio = i.cantidad >= i.minMayor ? i.pMayor : i.pDetal; let sub = precio * i.cantidad; total += sub;
+                cuerpo.innerHTML += `<div class="item-en-carrito"><div><b>${i.nombre}</b><br>${i.color} - ${i.cantidad} uds</div><div>$${sub.toFixed(2)} <button class="btn-eliminar-item" onclick="quitarDelCarrito('${k}')">✕</button></div></div>`;
+            });
+            totalVisor.innerText = `$${total.toFixed(2)}`;
+        }
+
+        function obtenerIdentificadorSemanaActual() {
+            const hoy = new Date(); const d = new Date(Date.UTC(hoy.getFullYear(), hoy.getMonth(), hoy.getDate())); const diaNum = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - diaNum);
+            return `${d.getUTCFullYear()}-W${String(Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(),0,1))) / 86400000) + 1) / 7)).padStart(2, '0')}`;
+        }
+
+        function obtenerRangoFechaSemanaActual() {
+            const hoy = new Date(); const dia = hoy.getDay() || 7; const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - (dia - 1)); const domingo = new Date(hoy); domingo.setDate(hoy.getDate() + (7 - dia));
+            return `Lun ${String(lunes.getDate()).padStart(2,'0')}/${String(lunes.getMonth()+1).padStart(2,'0')} al Dom ${String(domingo.getDate()).padStart(2,'0')}/${String(domingo.getMonth()+1).padStart(2,'0')}`;
+        }
+
+        function eliminarSemanaHistoricaCompleta() {
+            const id = document.getElementById("rep-selector-semanas").value;
+            if(confirm("¿Eliminar toda la semana?")) { bd_ventas = bd_ventas.filter(s => s.idSemana !== id); localStorage.setItem("frnshein_ventas_historico", JSON.stringify(bd_ventas)); inicializarReportesFinancieros(); }
+        }
+
+        function actualizarTodoEfecto() { localStorage.setItem("frnshein_inventario", JSON.stringify(bd_productos)); renderizarCatalogoCliente(); actualizarInterfazCarrito(); }
+
+        function procesarCompraWhatsApp(tel) {
+            let t = "🛒 *PEDIDO FRNSHEIN*\n\n"; let tot = 0;
+            Object.keys(carrito).forEach(k => { let i = carrito[k]; let p = i.cantidad >= i.minMayor ? i.pMayor : i.pDetal; let s = p * i.cantidad; tot += s; t += `▪️ *${i.nombre}*\n ${i.color} | x${i.cantidad} -> $${s.toFixed(2)}\n\n`; });
+            t += `*Total: $${tot.toFixed(2)}*`; window.open(`https://api.whatsapp.com/send?phone=${tel}&text=${encodeURIComponent(t)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
