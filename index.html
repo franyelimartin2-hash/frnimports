@@ -876,7 +876,7 @@ const JSONBIN_API_KEY = "$2a$10$RW10yhY4TSw6/PlWHQ8UQ0g.fVSvzk/2i8hRfWmY.XekCs16
 
 // 1. Función para CARGAR los productos de la nube al abrir la página
 function cargarDatosNube() {
-    fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+    fetch("https://api.jsonbin.io/v3/b/" + JSONBIN_BIN_ID + "/latest",  {
         method: 'GET',
         headers: {
             'X-Master-Key': JSONBIN_API_KEY
