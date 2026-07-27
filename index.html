@@ -831,6 +831,9 @@
             Object.keys(carrito).forEach(k => { let i = carrito[k]; let p = i.cantidad >= i.minMayor ? i.pMayor : i.pDetal; let s = p * i.cantidad; tot += s; t += `▪️ *${i.nombre}*\n ${i.color} | x${i.cantidad} -> $${s.toFixed(2)}\n\n`; });
             t += `*Total: $${tot.toFixed(2)}*`; window.open(`https://api.whatsapp.com/send?phone=${tel}&text=${encodeURIComponent(t)}`, '_blank');
         }
+        // --- CREDENCIALES DE JSONBIN.IO ---
+        const JSONBIN_BIN_ID = "6a66a691f5f4af5e29c56931"; // Reemplaza esto con el ID de tu Bin
+        const JSONBIN_API_KEY = "$2a$10$RW10yhY4TSw6/PlWHQ8UQ0g.fVSvzk/2i8hRfWmY.XekCs16x70/G"; // Tu Llave Maestra actual
     </script>
 </body>
 </html>
