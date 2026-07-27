@@ -870,9 +870,52 @@
             Object.keys(carrito).forEach(k => { let i = carrito[k]; let p = i.cantidad >= i.minMayor ? i.pMayor : i.pDetal; let s = p * i.cantidad; tot += s; t += `▪️ *${i.nombre}*\n ${i.color} | x${i.cantidad} -> $${s.toFixed(2)}\n\n`; });
             t += `*Total: $${tot.toFixed(2)}*`; window.open(`https://api.whatsapp.com/send?phone=${tel}&text=${encodeURIComponent(t)}`, '_blank');
         }
-        // --- CREDENCIALES DE JSONBIN.IO ---
-        const JSONBIN_BIN_ID = "6a66a691f5f4af5e29c56931"; // Reemplaza esto con el ID de tu Bin
-        const JSONBIN_API_KEY = "$2a$10$RW10yhY4TSw6/PlWHQ8UQ0g.fVSvzk/2i8hRfWmY.XekCs16x70/G"; // Tu Llave Maestra actual
+       // --- CONFIGURACIÓN Y SINCRONIZACIÓN AUTOMÁTICA CON JSONBIN.IO ---
+const JSONBIN_BIN_ID = "6a66a691f5f4af5e29c56931";
+const JSONBIN_API_KEY = "$2a$10$RW10yhY4TSw6/PlWHQ8UQ0g.fVSvzk/2i8hRfWmY.XekCs16x70/G";
+
+// 1. Función para CARGAR los productos de la nube al abrir la página
+function cargarDatosNube() {
+    fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+        method: 'GET',
+        headers: {
+            'X-Master-Key': JSONBIN_API_KEY
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data && data.record) {
+            // Si hay productos en la nube, los cargamos a tu base de datos local y actualizamos la pantalla
+            bd_productos = data.record;
+            if (typeof actualizarTodoEfecto === 'function') actualizarTodoEfecto();
+            if (typeof renderizarProductos === 'function') renderizarProductos();
+            console.log("¡Productos cargados exitosamente desde la nube!");
+        }
+    })
+    .catch(error => console.log("Error al conectar con la nube:", error));
+}
+
+// 2. Función para GUARDAR los productos en la nube cada vez que agregues o edites algo
+function guardarDatosNube() {
+    fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': JSONBIN_API_KEY
+        },
+        body: JSON.stringify(bd_productos)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("¡Cambios guardados en la nube correctamente!");
+    })
+    .catch(error => console.log("Error al guardar en la nube:", error));
+}
+
+// Ejecutar la carga de datos automáticamente apenas se abra la página
+window.addEventListener('DOMContentLoaded', () => {
+    cargarDatosNube();
+});
     </script>
 </body>
 </html>
